@@ -1,7 +1,13 @@
 #Dependencies
 from tkinter import *
 from os.path import isfile , isdir
-from os import system
+from os import system , chdir , getlogin
+from validators import url
+from requests import get
+
+prcsexit=None
+
+user=getlogin()
 
 root=Tk()
 root.title('App Image Manager')
@@ -17,11 +23,34 @@ button2=Button(root , text='Uninstall')
 canvas.create_window(250 , 45, window=button2)
 
 class Install():
-    def from_path(path):
-        pathexists=isfile(path)
-        #if pathexists==True:
+    def from_path(file):
+        pathexists=isfile(file)
+        if pathexists==True:
+            system(f'cp {file} ~/appimage-manager')
+        else:
+           return FileNotFoundError;prcsexit==int(1)
+
+    def from_link(link , filename):
+        global prcsexit
+        urlistrue=url(link)
+        if urlistrue==True:
+            chdir('/home/{user}/appimage-manager')
+            file=get(link)
+            appimage=open(filename , 'wb')
+            appimage.write(file.content)
+            prcsexit=int(0)
+        else:
+            global prcsexit
+            return ValueError;prcsexit==int(1)
+
+
 
 def check_on_startup():
-    isdir('.local/appimage-manager')
+    direxists=isdir('appimage-manager')
+    if direxists:=True:
+        pass
+    else:
+        system('mkdir appimage-manager')
 
+check_on_startup()
 root.mainloop()
