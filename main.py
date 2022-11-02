@@ -68,10 +68,20 @@ class Install_Dialog():
 
 class InstallType_dialogs():
     def online():
-        global onlinedb
+        global onlinedb , link , filename
         GUI.destroy()
         onlinedb=Tk()
         onlinedb.title('Installing Appimage:-')
+        onlinedb.geometry('320x200')
+        onlinedbc=Canvas(onlinedb , width=320 , height=200)
+        onlinedbc.pack()
+        onlinedbc.create_window(150 , 30, window=Label(onlinedb , text="Enter some details:-"))
+        onlinedbc.create_window(40 , 70, window=Label(onlinedb , text="Source:-"))
+        e1=Entry(onlinedb)
+        e2=Entry(onlinedb)
+        onlinedbc.create_window(195 , 70 , window=e1)
+        onlinedbc.create_window(40 , 100, window=Label(onlinedb , text="FlName:-"))
+        onlinedbc.create_window(195 , 100 , window=e2)
         onlinedb.mainloop()
 
 def check_on_startup():
