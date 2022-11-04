@@ -1,6 +1,6 @@
 #Dependencies
 from tkinter import Canvas , Tk , Entry , Button , Listbox , Label
-from tkinter.filedialog import askopenfile
+from tkinter.messagebox import showinfo , showerror
 from os.path import isfile , isdir
 from subprocess import check_output
 from os import system , chdir , getlogin
@@ -32,20 +32,36 @@ class Install():
         pathexists=isfile(file)
         if pathexists==True:
             system(f'cp {file} ~/appimage-manager')
+            chdir(f'/home/{user}/appimage-manager')
+            system(f'chmod 755 {file}')
+            showinfo('Sucess:-' , f'{filename} was installed succesfully')
+            show_main()
         else:
             prcsexit==int(1)
             raise FileNotFoundError 
 
     def from_link(link , filename):
-        global prcsexit
+        global prcsexit , file
         urlistrue=url(link)
         if urlistrue==True:
             chdir(f'/home/{user}/appimage-manager')
-            file=get(link)
-            appimage=open(filename , 'wb')
-            appimage.write(file.content)
-            system(f"chmod +x {filename}")
-            prcsexit=int(0)
+            try:
+                file=get(link)
+                filedownload=True
+            except Exception:
+                filedownload=False
+                showerror("Error" , 'Internet is not connected')
+
+            if filedownload==True:
+                appimage=open(filename , 'wb')
+                appimage.write(file.content)
+                system(f"chmod +x {filename}")
+                prcsexit=int(0)
+                showinfo("Sucess" , 'AppImage sucessfully installed')
+                show_main()
+                onlinedb.destroy()
+            else:
+                onlinedb.destroy()
         else:
             return ValueError;prcsexit==int(1)
 
@@ -71,6 +87,7 @@ class Install_Dialog():
         canvasdb.create_window(150 , 115, window=buttonoffline)
 
         buttononline.configure(command=InstallType_dialogs.online)
+        buttonoffline.configure(command=InstallType_dialogs.offline)
 
 class InstallType_dialogs():
     def online():
@@ -96,6 +113,7 @@ class InstallType_dialogs():
         global offlinedb
         GUI.destroy()
         offlinedb=Tk()
+        offlinedb.title('Offline Install')
 
         offlinedb.mainloop()
 
@@ -133,26 +151,33 @@ def check_on_startup():
         system('mkdir appimage-manager')
 
 def show_main():
-    global lbox
+    global lbox , elements
     chdir(f'/home/{user}/appimage-manager')
     appimages=check_output('ls').decode('utf-8')
     #Converting it to a set
     set=appimages.splitlines()
     elements=len(set)
 
-    num=0
-
     lbox=Listbox(root , bg="white")
-    lbox.insert(num , set[0])
-    for i in range(num+1 , elements):
-        num=num+1
-        lbox.insert(num , set[num])        
+
+    if elements==int(0):
+        pass
+    else:
+        num=0
+        lbox.insert(num , set[0])
+        for i in range(num+1 , elements):
+            num=num+1
+            lbox.insert(num , set[num])        
 
 button1.configure(command=Install_Dialog.__init__)
 button3.configure(command=run_appimages.__init__)
 
 show_main()
-lbox.pack()
 
+if elements==int(0):
+    lbox.pack()
+else:
+    show_main()
+    lbox.pack()
 check_on_startup()
 root.mainloop()
