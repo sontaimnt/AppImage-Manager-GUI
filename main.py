@@ -1,5 +1,5 @@
-#Dependencies
-from tkinter import Canvas , Tk , Entry , Button , Listbox , Label
+#Dependencies 
+from tkinter import Canvas , Tk , Entry , Button , Listbox , Label , Scrollbar , END , LEFT , RIGHT , BOTH
 from tkinter.messagebox import showinfo , showerror
 from os.path import isfile , isdir
 from subprocess import check_output
@@ -15,6 +15,9 @@ root.geometry('400x400')
 
 canvas=Canvas(root , width=400 , height=80)
 canvas.pack(side="top")
+
+scbar=Scrollbar(root)
+scbar.pack(side = RIGHT, fill = BOTH)
 
 button1=Button(root , text='Install')
 canvas.create_window(100 , 45, window=button1)
@@ -34,11 +37,11 @@ class Install():
             system(f'cp {file} ~/appimage-manager')
             chdir(f'/home/{user}/appimage-manager')
             system(f'chmod 755 {file}')
-            showinfo('Sucess:-' , f'{filename} was installed succesfully')
-            show_main()
+            showinfo('Sucess:-' , f'{file} was installed succesfully')
+            lbox.forget();show_main();lbox.pack()
         else:
             prcsexit==int(1)
-            raise FileNotFoundError 
+            showerror('Error' , 'The specified  file does not exists')
 
     def from_link(link , filename):
         global prcsexit , file
@@ -58,7 +61,7 @@ class Install():
                 system(f"chmod +x {filename}")
                 prcsexit=int(0)
                 showinfo("Sucess" , 'AppImage sucessfully installed')
-                show_main()
+                lbox.forget();show_main();lbox.pack()
                 onlinedb.destroy()
             else:
                 onlinedb.destroy()
@@ -114,7 +117,17 @@ class InstallType_dialogs():
         GUI.destroy()
         offlinedb=Tk()
         offlinedb.title('Offline Install')
+        offlinedb.geometry('320x100')
 
+        offlinedc=Canvas(offlinedb , width=320 , height=100)
+        offlinedc.pack()
+
+        entryoffline=Entry(offlinedb)
+        install=Button(offlinedb , text="Install" , command=lambda:Install.from_path(file=entryoffline.get()))
+        offlinedc.create_window(40 , 30 , window=Label(offlinedb , text="Path:-"))
+        offlinedc.create_window(195 , 30, window=entryoffline)
+        offlinedc.create_window(150 , 70, window=install)
+        
         offlinedb.mainloop()
 
 class run_appimages():
@@ -141,7 +154,12 @@ class run_appimages():
     def run_f(file):
         rundialog.destroy()
         chdir(f"/home/{user}/appimage-manager")
-        system(f'./{file}')
+        fileexitsts=isfile(file)
+        appimagetrue='AppImage' in file
+        if fileexitsts==True and appimagetrue==True:
+            system(f'./{file}')
+        else:
+            showerror('Error' , f'{file} not found in direcotry or {file} is not an AppImage')
 
 def check_on_startup():
     direxists=isdir(f'/home/{user}/appimage-manager')
@@ -158,7 +176,11 @@ def show_main():
     set=appimages.splitlines()
     elements=len(set)
 
-    lbox=Listbox(root , bg="white")
+    lbox=Listbox(root , bg="white" , width=250 , height=300)
+
+    num=0
+
+    lbox.delete(0 , END)
 
     if elements==int(0):
         pass
@@ -175,9 +197,15 @@ button3.configure(command=run_appimages.__init__)
 show_main()
 
 if elements==int(0):
-    lbox.pack()
+    lbox.pack(side="left")
 else:
     show_main()
-    lbox.pack()
+    lbox.pack(side="left")
+
+lbox.pack(side = LEFT, fill = BOTH)
+
+lbox.config(yscrollcommand=scbar.set)
+scbar.config(command=lbox.yview)
+
 check_on_startup()
 root.mainloop()
