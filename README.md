@@ -7,7 +7,6 @@ A simple tool to manage appimages
 - You can download AppImages from internet and also you can install from downloaded directory
 - Appimages can be run 
 - AppImages can be uninstalled 
-- Live Update
 
 # Preview
 
