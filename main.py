@@ -141,10 +141,12 @@ class run_appimages():
         canvasrun=Canvas(rundialog , width=300 , height=100)
         canvasrun.pack()
 
-        e3=Entry(rundialog)
-        canvasrun.create_window(180 , 30, window=e3)
+        canvasrun.create_window(150 , 15, window=Label(canvasrun , text="Run Appimage:-"))
 
-        canvasrun.create_window(30 , 30, window=Label(canvasrun , text="File:-"))
+        e3=Entry(rundialog)
+        canvasrun.create_window(180 , 40, window=e3)
+
+        canvasrun.create_window(30 , 40, window=Label(canvasrun , text="File:-"))
 
         button=Button(canvasrun , text="Submit" , command=lambda:run_appimages.run_f(file=e3.get()))
         canvasrun.create_window(150 , 75, window=button)
@@ -161,6 +163,40 @@ class run_appimages():
         else:
             showerror('Error' , f'{file} not found in direcotry or {file} is not an AppImage')
 
+class UninstallDialog():
+    def main():
+        global GUIUB
+        GUIUB=Tk()
+        GUIUB.title('AppImage Uninstaller')
+        GUIUB.geometry('300x110')
+
+        GUIC=Canvas(GUIUB , width=300 , height=110)
+        GUIC.pack()
+
+        EntryG=Entry(GUIUB)
+        
+        GUICB=Button(GUIUB , text="Uninstall" , command=lambda:uninstall(file=EntryG.get()))
+        
+        GUIC.create_window(150 , 15, window=Label(GUIUB , text='Remove Appimage:-'))
+        GUIC.create_window(40 , 50, window=Label(GUIUB , text='File:-'))
+        GUIC.create_window(180 , 50, window=EntryG)
+
+        GUIC.create_window(150 , 85 , window=GUICB)
+        
+        GUIUB.mainloop()
+
+def uninstall(file):
+    global fileexists
+    GUIUB.destroy()
+    fileexists=isfile(file)
+    if fileexists==True:
+        chdir(f'/home/{user}/appimage-manager')
+        system(f'rm {file}')
+        showinfo(f'Sucess' , f'{file} removed sucessfully')
+        lbox.forget();show_main();lbox.pack()
+    else:
+        showerror('Error' , f'The {file} does not exists')
+    
 def check_on_startup():
     direxists=isdir(f'/home/{user}/appimage-manager')
     if direxists==True:
@@ -192,6 +228,7 @@ def show_main():
             lbox.insert(num , set[num])        
 
 button1.configure(command=Install_Dialog.__init__)
+button2.configure(command=UninstallDialog.main)
 button3.configure(command=run_appimages.__init__)
 
 show_main()
